@@ -1,30 +1,92 @@
+import { Button, Col, Layout, message, Row } from "antd";
 import React from "react";
-import Navbar from "../components/Navbar.js";
-import { Breadcrumb, Layout, Menu, Row, Col, Space } from "antd";
+import { signInWithGoogle } from "../firebase";
+import mainlogo from "../mainlogo.png";
+import { GoogleCircleFilled, GoogleOutlined } from "@ant-design/icons";
+import { useState, useRef, useEffect } from "react";
+import SignInSignUpModal from "../components/SignInSignUpModal.js";
+import { auth, db, logout } from "../firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { query, collection, getDocs, where } from "firebase/firestore";
 const { Header, Content, Footer } = Layout;
-const AdmissionPage = () => {
-  return (
-    <Layout>
-      <Header style={{ padding: 0 }}>
-        <Navbar />
-      </Header>
-      <Content
-        style={{
-          margin: "1em 40em 1em 40em",
-          backgroundColor: "white",
-          aRowgnContent: "start",
-        }}
-      >
 
-        <Row>
-          <Col span={24}><Row>1.  &nbsp; Understanding Admission requirements</Row></Col>
-          <Col span={24}><Row>2.  &nbsp; Submit application online</Row></Col>
-          <Col span={24}><Row>3.  &nbsp; Upload supporting documents</Row></Col>
-          <Col span={24}><Row>4.  &nbsp; Make application fee payment</Row></Col>
-          <Col span={24}><Row>5.  &nbsp; Check appplication status</Row></Col>
+const AdmissionPage = () => {
+  const SignInSignUpModalRef = useRef();
+  const [user, loading, error] = useAuthState(auth);
+
+  useEffect(() => {
+    if (loading) return;
+    if (user) return;
+  }, [user, loading]);
+
+  return (
+    <div>
+      <SignInSignUpModal ref={SignInSignUpModalRef} />
+      <div className="pin-top-right">
+        <Row justify="space-between">
+          {user ? (
+            <>
+              <Col span={9}>
+                <Button
+                  type="primary"
+                  style={{
+                    boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+                    backgroundColor: "black",
+                    borderColor: "black",
+                  }}
+                  size="large"
+                  onClick={() => {
+                    message.success("Sign Out Successful!");
+                    logout();
+                  }}
+                >
+                  Sign Out
+                </Button>
+              </Col>
+            </>
+          ) : (
+            <>
+              <Col span={9}>
+                <Button
+                  style={{ boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px" }}
+                  size="large"
+                  onClick={() => SignInSignUpModalRef.current.showModal(false)}
+                >
+                  Sign up
+                </Button>
+              </Col>
+              <Col span={9}>
+                <Button
+                  type="primary"
+                  style={{ boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px" }}
+                  size="large"
+                  onClick={() => SignInSignUpModalRef.current.showModal(true)}
+                >
+                  Sign in
+                </Button>
+              </Col>
+            </>
+          )}
         </Row>
-      </Content>
-    </Layout>
+      </div>
+      <div className="centered">
+        <div
+          style={{
+            backgroundColor: "white",
+          }}
+        >
+          <h1>
+            <ol style={{ textAlign: "start" }}>
+              <li>Understanding Admission requirements</li>
+              <li>Submit application online</li>
+              <li>Upload supporting documents</li>
+              <li>Make application fee payment</li>
+              <li>Check appplication statu</li>
+            </ol>
+          </h1>
+        </div>
+      </div>
+    </div>
   );
 };
 
